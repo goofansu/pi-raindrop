@@ -5,7 +5,10 @@ import { createRaindropClient, formatRaindropApiError } from "./client.ts";
 describe("RaindropClient", () => {
   it("returns a tool-shaped error when API key is missing", async () => {
     const client = createRaindropClient(async () => new Response("{}"), "");
-    const result = await client.request({ method: "GET", path: "/collections" });
+    const result = await client.request({
+      method: "GET",
+      path: "/collections",
+    });
 
     assert.equal(result.ok, false);
     assert.equal(result.error, "RAINDROP_API_KEY is not set");
@@ -15,13 +18,19 @@ describe("RaindropClient", () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
     const client = createRaindropClient(async (url, init) => {
       calls.push({ url: String(url), init: init ?? {} });
-      return new Response(JSON.stringify({ result: true, items: [{ _id: 1 }] }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ result: true, items: [{ _id: 1 }] }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }, "test-token");
 
-    const result = await client.request({ method: "GET", path: "/collections" });
+    const result = await client.request({
+      method: "GET",
+      path: "/collections",
+    });
 
     assert.equal(result.ok, true);
     assert.deepEqual(result.data, { result: true, items: [{ _id: 1 }] });
@@ -39,7 +48,10 @@ describe("RaindropClient", () => {
       "secret-token",
     );
 
-    const result = await client.request({ method: "GET", path: "/collections" });
+    const result = await client.request({
+      method: "GET",
+      path: "/collections",
+    });
 
     assert.equal(result.ok, false);
     assert.match(result.error, /Raindrop API failed: 401/);
@@ -51,7 +63,10 @@ describe("RaindropClient", () => {
       throw new Error("network secret-token failed");
     }, "secret-token");
 
-    const result = await client.request({ method: "GET", path: "/collections" });
+    const result = await client.request({
+      method: "GET",
+      path: "/collections",
+    });
 
     assert.equal(result.ok, false);
     assert.match(result.error, /network \[REDACTED\] failed/);
@@ -64,7 +79,10 @@ describe("RaindropClient", () => {
       "test-token",
     );
 
-    const result = await client.request({ method: "GET", path: "/collections" });
+    const result = await client.request({
+      method: "GET",
+      path: "/collections",
+    });
 
     assert.equal(result.ok, false);
     assert.equal(result.status, 200);

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { formatBookmarkItem, formatCollectionItem, formatTagItem } from "./format.ts";
+import {
+  formatBookmarkItem,
+  formatCollectionItem,
+  formatTagItem,
+} from "./format.ts";
 
 describe("format helpers", () => {
   it("formats bookmark fields used by list and single-item operations", () => {

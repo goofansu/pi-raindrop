@@ -1,5 +1,8 @@
-import type { RaindropApiResponse, ValidationResult } from "../../core/types.ts";
 import { formatTagItem } from "../../core/format.ts";
+import type {
+  RaindropApiResponse,
+  ValidationResult,
+} from "../../core/types.ts";
 
 export interface TagInput extends Record<string, unknown> {
   tags?: unknown;

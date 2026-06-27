@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { Type } from "typebox";
-import type { RaindropClient, RaindropOperation } from "./types.ts";
 import { registerResourceTool } from "./resource-tool.ts";
+import type { RaindropClient, RaindropOperation } from "./types.ts";
 
 interface RegisteredTool {
   name: string;
@@ -11,14 +11,22 @@ interface RegisteredTool {
   promptSnippet: string;
   promptGuidelines: string[];
   parameters: unknown;
-  execute(toolCallId: string, params: Record<string, unknown>, signal?: AbortSignal): Promise<{
+  execute(
+    toolCallId: string,
+    params: Record<string, unknown>,
+    signal?: AbortSignal,
+  ): Promise<{
     isError: boolean;
     content: Array<{ type: "text"; text: string }>;
     details?: Record<string, unknown>;
   }>;
   renderCall(args: Record<string, unknown>, theme: TestTheme): { text: string };
   renderResult(
-    result: { isError?: boolean; content: Array<{ type: "text"; text: string }>; details?: unknown },
+    result: {
+      isError?: boolean;
+      content: Array<{ type: "text"; text: string }>;
+      details?: unknown;
+    },
     options: { expanded: boolean },
     theme: TestTheme,
     context: { isError: boolean },
@@ -31,11 +39,18 @@ interface TestTheme {
 }
 
 const theme: TestTheme = {
-  fg(_name, text) { return text; },
-  bold(text) { return text; },
+  fg(_name, text) {
+    return text;
+  },
+  bold(text) {
+    return text;
+  },
 };
 
-function makeOperation(action: string, overrides: Partial<RaindropOperation> = {}): RaindropOperation {
+function makeOperation(
+  action: string,
+  overrides: Partial<RaindropOperation> = {},
+): RaindropOperation {
   return {
     action,
     validate: () => ({ ok: true }),
@@ -46,11 +61,16 @@ function makeOperation(action: string, overrides: Partial<RaindropOperation> = {
   };
 }
 
-function registerForTest(operations: RaindropOperation[], client: RaindropClient): RegisteredTool {
+function registerForTest(
+  operations: RaindropOperation[],
+  client: RaindropClient,
+): RegisteredTool {
   let tool: RegisteredTool | undefined;
   registerResourceTool(
     {
-      registerTool(registeredTool: RegisteredTool) { tool = registeredTool; },
+      registerTool(registeredTool: RegisteredTool) {
+        tool = registeredTool;
+      },
     } as never,
     {
       name: "raindrop_test",
@@ -69,7 +89,9 @@ function registerForTest(operations: RaindropOperation[], client: RaindropClient
 
 describe("registerResourceTool", () => {
   it("registers one resource tool", () => {
-    const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data: {} }) });
+    const tool = registerForTest([makeOperation("list")], {
+      request: async () => ({ ok: true, status: 200, data: {} }),
+    });
 
     assert.equal(tool.name, "raindrop_test");
     assert.equal(tool.label, "Raindrop Test");
@@ -81,10 +103,29 @@ describe("registerResourceTool", () => {
 
   it("dispatches the correct operation by action", async () => {
     const calls: string[] = [];
-    const tool = registerForTest([
-      makeOperation("first", { buildRequest: () => { calls.push("first"); return { method: "GET", path: "/first" }; } }),
-      makeOperation("second", { buildRequest: () => { calls.push("second"); return { method: "POST", path: "/second", body: { ok: true } }; } }),
-    ], { request: async (request) => ({ ok: true, status: 201, data: { result: true, items: [request] } }) });
+    const tool = registerForTest(
+      [
+        makeOperation("first", {
+          buildRequest: () => {
+            calls.push("first");
+            return { method: "GET", path: "/first" };
+          },
+        }),
+        makeOperation("second", {
+          buildRequest: () => {
+            calls.push("second");
+            return { method: "POST", path: "/second", body: { ok: true } };
+          },
+        }),
+      ],
+      {
+        request: async (request) => ({
+          ok: true,
+          status: 201,
+          data: { result: true, items: [request] },
+        }),
+      },
+    );
 
     const result = await tool.execute("call-1", { action: "second" });
 
@@ -95,9 +136,18 @@ describe("registerResourceTool", () => {
   });
 
   it("returns validation errors with isError true", async () => {
-    const tool = registerForTest([
-      makeOperation("list", { validate: () => ({ ok: false, reason: "missing collectionId" }) }),
-    ], { request: async () => { throw new Error("must not call client"); } });
+    const tool = registerForTest(
+      [
+        makeOperation("list", {
+          validate: () => ({ ok: false, reason: "missing collectionId" }),
+        }),
+      ],
+      {
+        request: async () => {
+          throw new Error("must not call client");
+        },
+      },
+    );
 
     const result = await tool.execute("call-1", { action: "list" });
 
@@ -107,7 +157,9 @@ describe("registerResourceTool", () => {
   });
 
   it("returns unknown action errors", async () => {
-    const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data: {} }) });
+    const tool = registerForTest([makeOperation("list")], {
+      request: async () => ({ ok: true, status: 200, data: {} }),
+    });
 
     const result = await tool.execute("call-1", { action: "bogus" });
 
@@ -118,7 +170,9 @@ describe("registerResourceTool", () => {
 
   it("preserves result details: resource, action, endpoint, status, count, data", async () => {
     const data = { result: true, items: [{ _id: 1 }, { _id: 2 }] };
-    const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data }) });
+    const tool = registerForTest([makeOperation("list")], {
+      request: async () => ({ ok: true, status: 200, data }),
+    });
 
     const result = await tool.execute("call-1", { action: "list" });
 
@@ -133,13 +187,25 @@ describe("registerResourceTool", () => {
 
   for (const action of ["get_many", "get"]) {
     it(`renders collapsed ${action} results with an expand hint when count is greater than one`, () => {
-      const tool = registerForTest([makeOperation(action)], { request: async () => ({ ok: true, status: 200, data: {} }) });
+      const tool = registerForTest([makeOperation(action)], {
+        request: async () => ({ ok: true, status: 200, data: {} }),
+      });
 
-      const rendered = tool.renderResult({
-        isError: false,
-        content: [{ type: "text", text: "Found 2 raindrop(s).\n\n1. First\n2. Second" }],
-        details: { action, count: 2 },
-      }, { expanded: false }, theme, { isError: false });
+      const rendered = tool.renderResult(
+        {
+          isError: false,
+          content: [
+            {
+              type: "text",
+              text: "Found 2 raindrop(s).\n\n1. First\n2. Second",
+            },
+          ],
+          details: { action, count: 2 },
+        },
+        { expanded: false },
+        theme,
+        { isError: false },
+      );
 
       assert.match(rendered.text, /✓ raindrop_test/);
       assert.match(rendered.text, /Found 2 raindrop\(s\)\./);
@@ -149,7 +215,9 @@ describe("registerResourceTool", () => {
   }
 
   it("renders call summaries using the selected operation", () => {
-    const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data: {} }) });
+    const tool = registerForTest([makeOperation("list")], {
+      request: async () => ({ ok: true, status: 200, data: {} }),
+    });
 
     const rendered = tool.renderCall({ action: "list" }, theme);
 

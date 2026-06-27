@@ -14,7 +14,11 @@ export function expandHint(): string {
   }
 }
 
-export function renderToolCall(resource: string, summary: string, theme: RenderTheme): Text {
+export function renderToolCall(
+  resource: string,
+  summary: string,
+  theme: RenderTheme,
+): Text {
   return new Text(
     `${theme.fg("toolTitle", theme.bold(`${resource} `))}${theme.fg("dim", summary)}`,
     0,
@@ -30,12 +34,23 @@ export function renderToolResult(input: {
   collapse: boolean;
   theme: RenderTheme;
 }): Text {
-  const icon = input.isError ? input.theme.fg("error", "✗") : input.theme.fg("success", "✓");
+  const icon = input.isError
+    ? input.theme.fg("error", "✗")
+    : input.theme.fg("success", "✓");
   const title = `${icon} ${input.theme.fg("toolTitle", input.theme.bold(input.resource))}`;
 
-  if (input.collapse && !input.expanded && !input.isError && input.content.includes("\n")) {
+  if (
+    input.collapse &&
+    !input.expanded &&
+    !input.isError &&
+    input.content.includes("\n")
+  ) {
     const summary = input.content.split("\n", 1)[0] ?? "";
-    return new Text(`${title}\n${summary}\n${input.theme.fg("dim", `(${expandHint()})`)}`, 0, 0);
+    return new Text(
+      `${title}\n${summary}\n${input.theme.fg("dim", `(${expandHint()})`)}`,
+      0,
+      0,
+    );
   }
 
   return new Text(`${title}\n${input.content}`, 0, 0);

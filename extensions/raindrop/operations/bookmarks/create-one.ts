@@ -4,7 +4,11 @@ import { formatItem, invalid, isObject, ok } from "./helpers.ts";
 export const createOne: RaindropOperation = {
   action: "create_one",
   validate(input) {
-    return isObject(input.item) && typeof input.item.link === "string" && input.item.link !== "" ? ok() : invalid("create_one requires item.link");
+    return isObject(input.item) &&
+      typeof input.item.link === "string" &&
+      input.item.link !== ""
+      ? ok()
+      : invalid("create_one requires item.link");
   },
   buildRequest(input) {
     return { method: "POST", path: "/raindrop", body: input.item };

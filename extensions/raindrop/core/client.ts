@@ -56,7 +56,10 @@ export function createRaindropClient(
             Authorization: `Bearer ${apiKey}`,
             "Content-Type": "application/json",
           },
-          body: request.body === undefined ? undefined : JSON.stringify(request.body),
+          body:
+            request.body === undefined
+              ? undefined
+              : JSON.stringify(request.body),
         });
       } catch (error) {
         return { ok: false, error: formatUnknownError(error, apiKey) };
@@ -71,7 +74,11 @@ export function createRaindropClient(
             error: formatRaindropApiError(response.status, body),
           };
         } catch (error) {
-          return { ok: false, status: response.status, error: formatUnknownError(error, apiKey) };
+          return {
+            ok: false,
+            status: response.status,
+            error: formatUnknownError(error, apiKey),
+          };
         }
       }
 
@@ -80,7 +87,11 @@ export function createRaindropClient(
         const data = (text ? JSON.parse(text) : {}) as RaindropApiResponse;
         return { ok: true, status: response.status, data };
       } catch (error) {
-        return { ok: false, status: response.status, error: formatUnknownError(error, apiKey) };
+        return {
+          ok: false,
+          status: response.status,
+          error: formatUnknownError(error, apiKey),
+        };
       }
     },
   };

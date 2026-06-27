@@ -1,5 +1,11 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { formatMutation, invalid, isArray, ok, type TagInput } from "./helpers.ts";
+import {
+  formatMutation,
+  invalid,
+  isArray,
+  ok,
+  type TagInput,
+} from "./helpers.ts";
 
 export const merge: RaindropOperation = {
   action: "merge",

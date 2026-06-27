@@ -1,5 +1,11 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { formatMutation, invalid, isArray, ok, type TagInput } from "./helpers.ts";
+import {
+  formatMutation,
+  invalid,
+  isArray,
+  ok,
+  type TagInput,
+} from "./helpers.ts";
 
 export const rename: RaindropOperation = {
   action: "rename",
@@ -23,7 +29,10 @@ export const rename: RaindropOperation = {
     return formatMutation();
   },
   summarize(input: TagInput) {
-    const tagName = isArray(input.tags) && input.tags.length > 0 ? String(input.tags[0]) : "?";
+    const tagName =
+      isArray(input.tags) && input.tags.length > 0
+        ? String(input.tags[0])
+        : "?";
     return `rename tag ${tagName} to ${input.replace ?? "?"}`;
   },
 };

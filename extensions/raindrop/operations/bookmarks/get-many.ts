@@ -5,8 +5,16 @@ export const getMany: RaindropOperation = {
   action: "get_many",
   validate: validatePerpage,
   buildRequest(input) {
-    const collectionId = typeof input.collectionId === "number" || typeof input.collectionId === "string" ? input.collectionId : 0;
-    const request = { method: "GET" as const, path: `/raindrops/${collectionId}`, query: query(input, ["search", "sort", "page", "perpage", "nested"]) };
+    const collectionId =
+      typeof input.collectionId === "number" ||
+      typeof input.collectionId === "string"
+        ? input.collectionId
+        : 0;
+    const request = {
+      method: "GET" as const,
+      path: `/raindrops/${collectionId}`,
+      query: query(input, ["search", "sort", "page", "perpage", "nested"]),
+    };
     if (!request.query) delete request.query;
     return request;
   },
