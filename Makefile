@@ -1,2 +1,2 @@
 dev:
-	pi -ne -np -nc --no-session --offline -e extensions/raindrop --tools raindrop
+	pi -ne -np -nc --no-session --offline -e extensions/raindrop
