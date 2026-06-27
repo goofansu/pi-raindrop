@@ -21,7 +21,7 @@ describe("collection operations", () => {
     assert.match(
       operation.format({
         result: true,
-        collections: [
+        items: [
           {
             _id: 123,
             title: "Bookmarks",

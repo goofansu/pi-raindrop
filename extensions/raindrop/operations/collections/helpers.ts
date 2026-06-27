@@ -20,7 +20,7 @@ export function formatCollections(
   data: RaindropApiResponse,
   prefix: string,
 ): string {
-  const items = (data.collections ?? [])
+  const items = (data.items ?? [])
     .filter(isObject)
     .map((item, index) => `${index + 1}. ${formatCollectionItem(item)}`);
   return items.length ? `${prefix}\n\n${items.join("\n")}` : prefix;

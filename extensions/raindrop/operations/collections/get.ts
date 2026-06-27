@@ -10,7 +10,7 @@ export const get: RaindropOperation = {
     return { method: "GET", path: "/collections" };
   },
   format(data) {
-    const count = data.collections?.length ?? 0;
+    const count = data.items?.length ?? 0;
     return formatCollections(data, `Found ${count} collection(s).`);
   },
   summarize() {
