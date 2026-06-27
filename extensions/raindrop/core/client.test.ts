@@ -45,6 +45,31 @@ describe("RaindropClient", () => {
     assert.match(result.error, /Raindrop API failed: 401/);
     assert.doesNotMatch(JSON.stringify(result), /secret-token/);
   });
+
+  it("returns an error result when fetch rejects", async () => {
+    const client = createRaindropClient(async () => {
+      throw new Error("network secret-token failed");
+    }, "secret-token");
+
+    const result = await client.request({ method: "GET", path: "/collections" });
+
+    assert.equal(result.ok, false);
+    assert.match(result.error, /network \[REDACTED\] failed/);
+    assert.doesNotMatch(JSON.stringify(result), /secret-token/);
+  });
+
+  it("returns an error result when success JSON is malformed", async () => {
+    const client = createRaindropClient(
+      async () => new Response("{not json", { status: 200 }),
+      "test-token",
+    );
+
+    const result = await client.request({ method: "GET", path: "/collections" });
+
+    assert.equal(result.ok, false);
+    assert.equal(result.status, 200);
+    assert.match(result.error, /JSON|parse|Unexpected/i);
+  });
 });
 
 describe("formatRaindropApiError", () => {

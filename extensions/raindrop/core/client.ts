@@ -27,6 +27,11 @@ function redactSecret(text: string, secret?: string): string {
   return text.split(secret).join("[REDACTED]");
 }
 
+function formatUnknownError(error: unknown, apiKey?: string): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return redactSecret(message, apiKey);
+}
+
 export function formatRaindropApiError(status: number, body: string): string {
   const truncatedBody = body.slice(0, ERROR_BODY_LIMIT);
   return `Raindrop API failed: ${status}${truncatedBody ? ` ${truncatedBody}` : ""}`;
@@ -42,28 +47,41 @@ export function createRaindropClient(
         return { ok: false, error: "RAINDROP_API_KEY is not set" };
       }
 
-      const response = await fetchImpl(buildUrl(request), {
-        method: request.method,
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: request.body === undefined ? undefined : JSON.stringify(request.body),
-      });
-
-      if (!response.ok) {
-        const body = redactSecret(await response.text(), apiKey);
-        return {
-          ok: false,
-          status: response.status,
-          error: formatRaindropApiError(response.status, body),
-        };
+      let response: Response;
+      try {
+        response = await fetchImpl(buildUrl(request), {
+          method: request.method,
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: request.body === undefined ? undefined : JSON.stringify(request.body),
+        });
+      } catch (error) {
+        return { ok: false, error: formatUnknownError(error, apiKey) };
       }
 
-      const text = await response.text();
-      const data = (text ? JSON.parse(text) : {}) as RaindropApiResponse;
-      return { ok: true, status: response.status, data };
+      if (!response.ok) {
+        try {
+          const body = redactSecret(await response.text(), apiKey);
+          return {
+            ok: false,
+            status: response.status,
+            error: formatRaindropApiError(response.status, body),
+          };
+        } catch (error) {
+          return { ok: false, status: response.status, error: formatUnknownError(error, apiKey) };
+        }
+      }
+
+      try {
+        const text = await response.text();
+        const data = (text ? JSON.parse(text) : {}) as RaindropApiResponse;
+        return { ok: true, status: response.status, data };
+      } catch (error) {
+        return { ok: false, status: response.status, error: formatUnknownError(error, apiKey) };
+      }
     },
   };
 }
