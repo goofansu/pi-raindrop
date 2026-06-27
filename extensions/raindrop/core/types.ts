@@ -1,12 +1,10 @@
-export type RaindropOperation =
-  | "list"
-  | "create_many"
-  | "update_many"
-  | "get"
-  | "tags"
-  | "collections"
-  | "rename_tag"
-  | "merge_tags";
+export interface RaindropOperation {
+  action: string;
+  validate(input: Record<string, unknown>): ValidationResult;
+  buildRequest(input: Record<string, unknown>): RaindropRequest;
+  format(data: RaindropApiResponse): string;
+  summarize(input: Record<string, unknown>): string;
+}
 
 export type RaindropHttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
