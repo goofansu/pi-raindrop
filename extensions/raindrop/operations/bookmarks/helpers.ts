@@ -27,9 +27,9 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 export function validatePerpage(input: BookmarkInput): ValidationResult {
-  return typeof input.perpage === "number" && input.perpage > 50
-    ? invalid("perpage must be at most 50")
-    : ok();
+  if (input.perpage === undefined) return ok();
+  if (typeof input.perpage !== "number") return invalid("perpage must be a number");
+  return input.perpage > 50 ? invalid("perpage must be at most 50") : ok();
 }
 
 export function query(input: BookmarkInput, fields: Array<"search" | "sort" | "page" | "perpage" | "nested">): RaindropRequest["query"] {
