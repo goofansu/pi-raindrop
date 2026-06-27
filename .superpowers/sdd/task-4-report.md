@@ -19,3 +19,24 @@ Complete.
 
 ## Concerns
 - No extension entrypoint wiring was added per task instruction; the factory is available but not yet used by `extensions/raindrop/index.ts`.
+
+## Follow-up Fix: Generic collapse for list-producing actions
+
+### Status
+Complete.
+
+### Changes
+- Changed `extensions/raindrop/core/resource-tool.ts` collapse decision from hardcoded action names to successful results with numeric `details.count > 1`.
+- Updated `extensions/raindrop/core/resource-tool.test.ts` to cover real list-producing actions `get_many` and `get` with count 2.
+
+### TDD Evidence
+- Added the `get` collapse coverage first.
+- `node --import tsx --test extensions/raindrop/core/resource-tool.test.ts` failed because `get` did not collapse.
+- Implemented the generic count-based collapse decision and reran verification.
+
+### Verification
+- `node --import tsx --test extensions/raindrop/core/resource-tool.test.ts` — PASS
+- `npm run typecheck` — PASS
+
+### Concerns
+- None.

@@ -131,7 +131,7 @@ export function registerResourceTool(
         content: contentText(result),
         isError,
         expanded,
-        collapse: details?.action === "list" || details?.action === "get_many",
+        collapse: typeof details?.count === "number" && details.count > 1,
         theme,
       });
     },

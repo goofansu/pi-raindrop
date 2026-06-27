@@ -131,20 +131,22 @@ describe("registerResourceTool", () => {
     assert.deepEqual(result.details?.data, data);
   });
 
-  it("renders collapsed list results with an expand hint", () => {
-    const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data: {} }) });
+  for (const action of ["get_many", "get"]) {
+    it(`renders collapsed ${action} results with an expand hint when count is greater than one`, () => {
+      const tool = registerForTest([makeOperation(action)], { request: async () => ({ ok: true, status: 200, data: {} }) });
 
-    const rendered = tool.renderResult({
-      isError: false,
-      content: [{ type: "text", text: "Found 2 raindrop(s).\n\n1. First\n2. Second" }],
-      details: { action: "list", count: 2 },
-    }, { expanded: false }, theme, { isError: false });
+      const rendered = tool.renderResult({
+        isError: false,
+        content: [{ type: "text", text: "Found 2 raindrop(s).\n\n1. First\n2. Second" }],
+        details: { action, count: 2 },
+      }, { expanded: false }, theme, { isError: false });
 
-    assert.match(rendered.text, /✓ raindrop_test/);
-    assert.match(rendered.text, /Found 2 raindrop\(s\)\./);
-    assert.match(rendered.text, /to expand/);
-    assert.doesNotMatch(rendered.text, /First/);
-  });
+      assert.match(rendered.text, /✓ raindrop_test/);
+      assert.match(rendered.text, /Found 2 raindrop\(s\)\./);
+      assert.match(rendered.text, /to expand/);
+      assert.doesNotMatch(rendered.text, /First/);
+    });
+  }
 
   it("renders call summaries using the selected operation", () => {
     const tool = registerForTest([makeOperation("list")], { request: async () => ({ ok: true, status: 200, data: {} }) });
