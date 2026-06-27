@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "description": "List, create, update, and manage Raindrop.io bookmarks and tags from Pi.",
   "type": "module",
-  "exports": {
-    ".": "./extensions/raindrop/index.ts",
-    "./raindrop": "./extensions/raindrop/index.ts"
-  },
   "keywords": [
     "pi-package"
   ],
