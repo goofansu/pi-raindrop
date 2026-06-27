@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { describe, it } from "node:test";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import raindropExtension from "./index.ts";
@@ -56,6 +57,19 @@ function toolByName(tools: RegisteredTool[], name: string): RegisteredTool {
   assert.ok(tool, `${name} should be registered`);
   return tool;
 }
+
+describe("raindrop skill", () => {
+  it("exists with raindrop frontmatter and mentions all public tools", async () => {
+    const skill = await readFile("skills/raindrop/SKILL.md", "utf8");
+
+    assert.match(skill, /^---\n[\s\S]*?\n---\n/);
+    assert.match(skill, /^name: raindrop$/m);
+    assert.match(skill, /^description: .+/m);
+    assert.match(skill, /`raindrop_bookmarks`/);
+    assert.match(skill, /`raindrop_tags`/);
+    assert.match(skill, /`raindrop_collections`/);
+  });
+});
 
 describe("raindrop extension registration", () => {
   it("registers exactly the three resource tools and not the legacy raindrop tool", () => {
