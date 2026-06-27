@@ -5,6 +5,7 @@ import {
   isArray,
   ok,
   type TagInput,
+  tagCollectionId,
 } from "./helpers.ts";
 
 export const merge: RaindropOperation = {
@@ -21,7 +22,7 @@ export const merge: RaindropOperation = {
   buildRequest(input: TagInput) {
     return {
       method: "PUT",
-      path: "/tags/0",
+      path: `/tags/${tagCollectionId(input)}`,
       body: { tags: input.tags, replace: input.replace },
     };
   },

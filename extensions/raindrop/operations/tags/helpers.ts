@@ -5,6 +5,7 @@ import type {
 } from "../../core/types.ts";
 
 export interface TagInput extends Record<string, unknown> {
+  collectionId?: unknown;
   tags?: unknown;
   replace?: unknown;
 }
@@ -34,4 +35,8 @@ export function formatTags(data: RaindropApiResponse, prefix: string): string {
 
 export function formatMutation(): string {
   return "Updated tag(s).";
+}
+
+export function tagCollectionId(input: TagInput): number {
+  return typeof input.collectionId === "number" ? input.collectionId : 0;
 }

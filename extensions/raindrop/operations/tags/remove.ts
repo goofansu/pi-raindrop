@@ -5,6 +5,7 @@ import {
   isArray,
   ok,
   type TagInput,
+  tagCollectionId,
 } from "./helpers.ts";
 
 export const remove: RaindropOperation = {
@@ -18,7 +19,7 @@ export const remove: RaindropOperation = {
   buildRequest(input: TagInput) {
     return {
       method: "DELETE",
-      path: "/tags/0",
+      path: `/tags/${tagCollectionId(input)}`,
       body: { tags: input.tags },
     };
   },

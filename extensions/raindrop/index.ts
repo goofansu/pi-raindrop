@@ -5,6 +5,7 @@ import { createRaindropClient } from "./core/client.ts";
 import { registerResourceTool } from "./core/resource-tool.ts";
 import {
   RaindropBookmarkItemSchema,
+  RaindropBookmarkUpdateItemSchema,
   RaindropUpdateBodySchema,
 } from "./core/schemas.ts";
 import { bookmarkOperations } from "./operations/bookmarks/index.ts";
@@ -26,7 +27,7 @@ const BookmarkActionSchema = StringEnum(
 const BookmarkParametersSchema = Type.Object({
   action: BookmarkActionSchema,
   id: Type.Optional(Type.Number()),
-  item: Type.Optional(RaindropBookmarkItemSchema),
+  item: Type.Optional(RaindropBookmarkUpdateItemSchema),
   items: Type.Optional(
     Type.Array(RaindropBookmarkItemSchema, { minItems: 1, maxItems: 100 }),
   ),

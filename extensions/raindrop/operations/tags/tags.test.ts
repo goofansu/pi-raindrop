@@ -48,11 +48,28 @@ describe("tag operations", () => {
       operation.validate({ action: "rename", tags: ["doc"] }),
       /requires replace/,
     );
-    const input = { action: "rename", tags: ["doc"], replace: "docs" };
+    assert.deepEqual(
+      operation.buildRequest({
+        action: "rename",
+        tags: ["doc"],
+        replace: "docs",
+      }),
+      {
+        method: "PUT",
+        path: "/tags/0",
+        body: { tags: ["doc"], replace: "docs" },
+      },
+    );
+    const input = {
+      action: "rename",
+      tags: ["doc"],
+      replace: "docs",
+      collectionId: 42,
+    };
     assert.deepEqual(operation.validate(input), { ok: true });
     assert.deepEqual(operation.buildRequest(input), {
       method: "PUT",
-      path: "/tags/0",
+      path: "/tags/42",
       body: { tags: ["doc"], replace: "docs" },
     });
     assert.match(
@@ -71,11 +88,28 @@ describe("tag operations", () => {
       operation.validate({ action: "merge", tags: ["old1"] }),
       /requires replace/,
     );
-    const input = { action: "merge", tags: ["old1", "old2"], replace: "new" };
+    assert.deepEqual(
+      operation.buildRequest({
+        action: "merge",
+        tags: ["old1", "old2"],
+        replace: "new",
+      }),
+      {
+        method: "PUT",
+        path: "/tags/0",
+        body: { tags: ["old1", "old2"], replace: "new" },
+      },
+    );
+    const input = {
+      action: "merge",
+      tags: ["old1", "old2"],
+      replace: "new",
+      collectionId: 42,
+    };
     assert.deepEqual(operation.validate(input), { ok: true });
     assert.deepEqual(operation.buildRequest(input), {
       method: "PUT",
-      path: "/tags/0",
+      path: "/tags/42",
       body: { tags: ["old1", "old2"], replace: "new" },
     });
     assert.match(
@@ -90,11 +124,19 @@ describe("tag operations", () => {
       operation.validate({ action: "remove", tags: [] }),
       /at least 1 tag/,
     );
-    const input = { action: "remove", tags: ["old"] };
+    assert.deepEqual(
+      operation.buildRequest({ action: "remove", tags: ["old"] }),
+      {
+        method: "DELETE",
+        path: "/tags/0",
+        body: { tags: ["old"] },
+      },
+    );
+    const input = { action: "remove", tags: ["old"], collectionId: 42 };
     assert.deepEqual(operation.validate(input), { ok: true });
     assert.deepEqual(operation.buildRequest(input), {
       method: "DELETE",
-      path: "/tags/0",
+      path: "/tags/42",
       body: { tags: ["old"] },
     });
     assert.match(

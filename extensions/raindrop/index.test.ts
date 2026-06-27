@@ -152,4 +152,46 @@ describe("raindrop extension registration", () => {
       else process.env.RAINDROP_API_KEY = oldKey;
     }
   });
+
+  it("bookmark tool execute accepts partial item fields for update_one", async () => {
+    const oldKey = process.env.RAINDROP_API_KEY;
+    const oldFetch = globalThis.fetch;
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    process.env.RAINDROP_API_KEY = "test-token";
+    globalThis.fetch = (async (
+      url: string | URL | Request,
+      init?: RequestInit,
+    ) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return new Response(
+        JSON.stringify({ result: true, item: { _id: 101, title: "New" } }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }) as typeof fetch;
+
+    try {
+      const { tools } = registerExtension();
+      const bookmarks = toolByName(tools, "raindrop_bookmarks");
+      const result = await bookmarks.execute("call-1", {
+        action: "update_one",
+        id: 101,
+        item: { title: "New" },
+      });
+
+      assert.equal(result.isError, false);
+      assert.equal(
+        calls[0].url,
+        "https://api.raindrop.io/rest/v1/raindrop/101",
+      );
+      assert.equal(calls[0].init.method, "PUT");
+      assert.equal(calls[0].init.body, JSON.stringify({ title: "New" }));
+    } finally {
+      globalThis.fetch = oldFetch;
+      if (oldKey === undefined) delete process.env.RAINDROP_API_KEY;
+      else process.env.RAINDROP_API_KEY = oldKey;
+    }
+  });
 });

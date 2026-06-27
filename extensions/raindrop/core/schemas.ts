@@ -4,8 +4,7 @@ export const RaindropCollectionRefSchema = Type.Object({
   $id: Type.Number(),
 });
 
-export const RaindropBookmarkItemSchema = Type.Object({
-  link: Type.String(),
+const RaindropBookmarkItemFields = {
   title: Type.Optional(Type.String()),
   excerpt: Type.Optional(Type.String()),
   note: Type.Optional(Type.String()),
@@ -15,6 +14,16 @@ export const RaindropBookmarkItemSchema = Type.Object({
   type: Type.Optional(Type.String()),
   created: Type.Optional(Type.String()),
   pleaseParse: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
+};
+
+export const RaindropBookmarkItemSchema = Type.Object({
+  link: Type.String(),
+  ...RaindropBookmarkItemFields,
+});
+
+export const RaindropBookmarkUpdateItemSchema = Type.Object({
+  link: Type.Optional(Type.String()),
+  ...RaindropBookmarkItemFields,
 });
 
 export const RaindropUpdateBodySchema = Type.Object({
