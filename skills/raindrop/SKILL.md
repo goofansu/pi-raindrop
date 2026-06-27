@@ -5,18 +5,20 @@ description: Guidance for using pi-raindrop tools to find, create, update, and o
 
 # Raindrop
 
-Use these tools for Raindrop.io work:
+Use this skill when working with Raindrop.io bookmarks, tags, or collections.
 
-- `raindrop_bookmarks` for bookmark get/create/update actions.
-- `raindrop_tags` for tag listing, renaming, merging, and removal.
-- `raindrop_collections` for discovering root collection IDs.
+## Tool selection
 
-## Workflow guidance
+- Use `raindrop_bookmarks` to get, search, create, or update bookmarks.
+- Use `raindrop_tags` to list, rename, merge, or remove tag names across bookmarks.
+- Use `raindrop_collections` to discover collection IDs before collection-scoped work.
 
-- Use `raindrop_collections` with `{ "action": "get" }` when collection IDs are needed.
-- Use `raindrop_bookmarks` with `{ "action": "get_many" }` before `update_many` unless the user gives an explicit query, IDs, or scope.
-- Use `raindrop_bookmarks` with `{ "action": "update_one" }` when the user gives a bookmark ID.
-- Use `raindrop_bookmarks` with `{ "action": "update_many" }` only with a non-zero `collectionId` and an intentional `search` or `ids` scope.
-- Use `create_one` for one bookmark; `create_many` accepts 1 to 100 bookmarks but is best for batches.
-- Use `raindrop_tags` only for tag management. Add or remove tags on bookmarks through bookmark create or update actions.
+## Safe workflow rules
+
+- Prefer the narrowest action that matches the request: `get_one` or `update_one` when the user gives a bookmark ID; `create_one` for a single bookmark.
+- Use `create_many` only for batches of 1 to 100 bookmarks.
+- Before `update_many`, first inspect the target set with `raindrop_bookmarks` `get_many` unless the user already provided explicit bookmark IDs, a search query, or another clear scope.
+- Use `update_many` only with a non-zero `collectionId` and an intentional scope, such as `body.ids` or a deliberate search/filter. Avoid broad, ambiguous bulk updates.
+- When a collection ID is needed, call `raindrop_collections` with `{ "action": "get" }` rather than guessing.
+- Use `raindrop_tags` only for tag administration operations. To add or remove tags on specific bookmarks, use `raindrop_bookmarks` create/update actions instead.
 - Do not attempt bookmark deletion; this package version does not expose bookmark remove actions.
