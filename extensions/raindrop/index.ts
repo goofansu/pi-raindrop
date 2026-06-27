@@ -68,6 +68,7 @@ export default function raindropExtension(pi: ExtensionAPI): void {
     pi,
     {
       name: "raindrop_bookmarks",
+      resource: "bookmarks",
       label: "Raindrop Bookmarks",
       description:
         "Manage Raindrop.io bookmarks: get, create, and update bookmarks.",
@@ -90,6 +91,7 @@ export default function raindropExtension(pi: ExtensionAPI): void {
     pi,
     {
       name: "raindrop_tags",
+      resource: "tags",
       label: "Raindrop Tags",
       description:
         "Manage Raindrop.io tags: list, rename, merge, or remove tags.",
@@ -111,6 +113,7 @@ export default function raindropExtension(pi: ExtensionAPI): void {
     pi,
     {
       name: "raindrop_collections",
+      resource: "collections",
       label: "Raindrop Collections",
       description: "List Raindrop.io collections.",
       promptSnippet:

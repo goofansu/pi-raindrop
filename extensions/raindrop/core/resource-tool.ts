@@ -18,6 +18,7 @@ import type {
 
 export interface ResourceToolDefinition {
   name: string;
+  resource: "bookmarks" | "tags" | "collections";
   label: string;
   description: string;
   promptSnippet: string;
@@ -114,7 +115,7 @@ export function registerResourceTool(
         const error = `Unknown action: ${action || "<empty>"}`;
         return textResult(
           error,
-          { resource: definition.name, action, error },
+          { resource: definition.resource, action, error },
           true,
         );
       }
@@ -123,7 +124,7 @@ export function registerResourceTool(
       if (!validation.ok) {
         return textResult(
           validation.reason,
-          { resource: definition.name, action, error: validation.reason },
+          { resource: definition.resource, action, error: validation.reason },
           true,
         );
       }
@@ -135,7 +136,7 @@ export function registerResourceTool(
         return textResult(
           response.error,
           {
-            resource: definition.name,
+            resource: definition.resource,
             action,
             endpoint: requestEndpoint,
             status: response.status,
@@ -149,7 +150,7 @@ export function registerResourceTool(
       return textResult(
         text,
         {
-          resource: definition.name,
+          resource: definition.resource,
           action,
           endpoint: requestEndpoint,
           status: response.status,
@@ -176,7 +177,7 @@ export function registerResourceTool(
       const details = resourceDetails(result.details);
       const isError = context.isError || result.isError === true;
       return renderToolResult({
-        resource: definition.name,
+        resource: details?.resource ?? definition.resource,
         content: contentText(result),
         isError,
         expanded,

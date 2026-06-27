@@ -22,6 +22,13 @@ describe("tag operations", () => {
       method: "GET",
       path: "/tags/0",
     });
+    assert.deepEqual(
+      operation.buildRequest({ action: "get", collectionId: 42 }),
+      {
+        method: "GET",
+        path: "/tags/42",
+      },
+    );
     assert.match(
       operation.format({
         result: true,

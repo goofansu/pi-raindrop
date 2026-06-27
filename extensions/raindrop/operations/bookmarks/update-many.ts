@@ -9,6 +9,11 @@ export const updateMany: RaindropOperation = {
     if (input.collectionId === 0)
       return invalid("update_many does not support collectionId 0");
     if (!isObject(input.body)) return invalid("update_many requires body");
+    const hasIds = Array.isArray(input.body.ids) && input.body.ids.length > 0;
+    const hasSearch =
+      typeof input.search === "string" && input.search.length > 0;
+    if (!hasIds && !hasSearch)
+      return invalid("update_many requires non-empty body.ids or search");
     return ok();
   },
   buildRequest(input) {

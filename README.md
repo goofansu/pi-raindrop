@@ -35,7 +35,7 @@ Actions:
 - `get_one`: fetch one bookmark by `id`.
 - `get_many`: list or search bookmarks by `collectionId`, `search`, `sort`, `page`, and `perpage`.
 - `create_one`: create one bookmark with `item`.
-- `create_many`: create 2 to 100 bookmarks with `items`.
+- `create_many`: create 1 to 100 bookmarks with `items`; prefer `create_one` for one bookmark.
 - `update_one`: update one bookmark by `id` with partial `item` fields.
 - `update_many`: update bookmarks in a non-zero `collectionId` with an intentional `search` or `ids` scope in `body`.
 

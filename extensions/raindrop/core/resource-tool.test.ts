@@ -74,6 +74,7 @@ function registerForTest(
     } as never,
     {
       name: "raindrop_test",
+      resource: "bookmarks",
       label: "Raindrop Test",
       description: "Test resource tool",
       promptSnippet: "Manage test resources",
@@ -177,7 +178,7 @@ describe("registerResourceTool", () => {
     const result = await tool.execute("call-1", { action: "list" });
 
     assert.equal(result.isError, false);
-    assert.equal(result.details?.resource, "raindrop_test");
+    assert.equal(result.details?.resource, "bookmarks");
     assert.equal(result.details?.action, "list");
     assert.equal(result.details?.endpoint, "GET /api/list");
     assert.equal(result.details?.status, 200);
@@ -207,7 +208,7 @@ describe("registerResourceTool", () => {
         { isError: false },
       );
 
-      assert.match(rendered.text, /✓ raindrop_test/);
+      assert.match(rendered.text, /✓ bookmarks/);
       assert.match(rendered.text, /Found 2 raindrop\(s\)\./);
       assert.match(rendered.text, /to expand/);
       assert.doesNotMatch(rendered.text, /First/);

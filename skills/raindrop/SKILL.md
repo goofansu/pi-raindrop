@@ -17,6 +17,6 @@ Use these tools for Raindrop.io work:
 - Use `raindrop_bookmarks` with `{ "action": "get_many" }` before `update_many` unless the user gives an explicit query, IDs, or scope.
 - Use `raindrop_bookmarks` with `{ "action": "update_one" }` when the user gives a bookmark ID.
 - Use `raindrop_bookmarks` with `{ "action": "update_many" }` only with a non-zero `collectionId` and an intentional `search` or `ids` scope.
-- Use `create_one` for one bookmark and `create_many` for 2 to 100 bookmarks.
+- Use `create_one` for one bookmark; `create_many` accepts 1 to 100 bookmarks but is best for batches.
 - Use `raindrop_tags` only for tag management. Add or remove tags on bookmarks through bookmark create or update actions.
 - Do not attempt bookmark deletion; this package version does not expose bookmark remove actions.

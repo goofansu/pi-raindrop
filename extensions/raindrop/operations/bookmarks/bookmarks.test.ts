@@ -191,10 +191,27 @@ describe("bookmark operations", () => {
       }),
       /collectionId 0/,
     );
+    assertInvalid(
+      operation.validate({
+        action: "update_many",
+        collectionId: 456,
+        body: { tags: ["new"] },
+      }),
+      /ids or search/,
+    );
     assert.deepEqual(
       operation.validate({
         action: "update_many",
         collectionId: 456,
+        body: { ids: [1, 2], tags: ["new"] },
+      }),
+      { ok: true },
+    );
+    assert.deepEqual(
+      operation.validate({
+        action: "update_many",
+        collectionId: 456,
+        search: "tag:old",
         body: { tags: ["new"] },
       }),
       { ok: true },
