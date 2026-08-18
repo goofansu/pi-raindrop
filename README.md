@@ -1,6 +1,6 @@
 # pi-raindrop
 
-List, create, update, and manage Raindrop.io bookmarks, tags, and collections from Pi.
+List, create, update, and manage Raindrop.io bookmarks, tags, and collections from pi.
 
 ## Install
 
