@@ -26,24 +26,21 @@ first, or run the `pi` command from that target directly with `RAINDROP_API_KEY`
 
 ## Tools
 
-This package registers three resource tools:
+This package registers a single resource tool, `raindrop`, covering bookmark get, create, and update actions plus collection listing.
 
-- `raindrop_bookmarks` for bookmark get, create, and update actions.
-- `raindrop_tags` for tag listing, renaming, merging, and removal.
-- `raindrop_collections` for discovering root collection IDs.
+It also provides the `raindrop` skill in `skills/raindrop/SKILL.md` so agents get workflow guidance when working with Raindrop.io bookmarks.
 
-It also provides the `raindrop` skill in `skills/raindrop/SKILL.md` so agents get workflow guidance when working with Raindrop.io bookmarks or tags.
-
-## `raindrop_bookmarks`
+## `raindrop`
 
 Actions:
 
 - `get_one`: fetch one bookmark by `id`.
 - `get_many`: list or search bookmarks by `collectionId`, `search`, `sort`, `page`, and `perpage`.
-- `create_one`: create one bookmark with `item`.
-- `create_many`: create 1 to 100 bookmarks with `items`; prefer `create_one` for one bookmark.
+- `create_one`: create one bookmark from `link`. Creating takes only the URL; Raindrop fetches the page metadata itself.
+- `create_many`: create 1 to 100 bookmarks from `links`; prefer `create_one` for one bookmark.
 - `update_one`: update one bookmark by `id` with partial `item` fields.
 - `update_many`: update bookmarks in a non-zero `collectionId` with an intentional `search` or `ids` scope in `body`.
+- `get_collections`: list root collections and their IDs.
 
 Examples:
 
@@ -52,40 +49,17 @@ Examples:
 ```
 
 ```json
-{ "action": "create_one", "item": { "link": "https://example.com", "title": "Example", "tags": ["inbox"] } }
-```
-
-## `raindrop_tags`
-
-Actions:
-
-- `get`: list tags, optionally within `collectionId`.
-- `rename`: rename exactly one source tag from `tags` to `replace`.
-- `merge`: merge one or more source tags from `tags` into `replace`.
-- `remove`: remove `tags` from bookmarks.
-
-Examples:
-
-```json
-{ "action": "get", "collectionId": 0 }
+{ "action": "create_one", "link": "https://example.com" }
 ```
 
 ```json
-{ "action": "merge", "tags": ["read-later", "to-read"], "replace": "reading" }
+{ "action": "create_many", "links": ["https://example.com/a", "https://example.com/b"] }
 ```
-
-## `raindrop_collections`
-
-Actions:
-
-- `get`: list root collections and their IDs.
-
-Examples:
 
 ```json
-{ "action": "get" }
+{ "action": "get_collections" }
 ```
 
-```text
-Use raindrop_collections with { "action": "get" } before moving or bulk-updating bookmarks when you need the destination collection ID.
-```
+Because creating takes only a URL, new bookmarks land in Unsorted (collection `-1`). To give one a title, tags, or a collection, create it and then apply those fields with `update_one`. Call `get_collections` first when you need a destination collection ID.
+
+Account-wide tag administration (renaming, merging, or removing a tag everywhere) is not exposed. Tags on specific bookmarks are set through `update_one` and `update_many`.

@@ -7,11 +7,6 @@ interface BookmarkItem {
   note?: string;
 }
 
-interface TagItem {
-  _id?: string;
-  count?: number;
-}
-
 interface CollectionItem {
   _id?: number | string;
   title?: string;
@@ -40,10 +35,6 @@ export function formatBookmarkItem(item: BookmarkItem): string {
   appendIfPresent(lines, "Excerpt", item.excerpt);
   appendIfPresent(lines, "Note", item.note);
   return lines.join("\n");
-}
-
-export function formatTagItem(item: TagItem): string {
-  return `${item._id ?? ""} (${item.count ?? 0})`;
 }
 
 export function formatCollectionItem(item: CollectionItem): string {

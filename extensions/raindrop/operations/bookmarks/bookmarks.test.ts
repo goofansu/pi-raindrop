@@ -72,60 +72,42 @@ describe("bookmark operations", () => {
 
   it("validates, maps, and formats create_one", () => {
     const operation = op("create_one");
-    const input = {
-      action: "create_one",
-      item: { link: "https://example.com", tags: ["docs"] },
-    };
+    const input = { action: "create_one", link: "https://example.com" };
     assert.deepEqual(operation.validate(input), { ok: true });
+    assertInvalid(operation.validate({ action: "create_one" }), /link.*URL/);
+    for (const link of [
+      "example.com",
+      "javascript:alert(1)",
+      "tel:123",
+      "data:text/html,x",
+      "a:b",
+    ]) {
+      assertInvalid(
+        operation.validate({ action: "create_one", link }),
+        /link.*http\(s\) URL/,
+      );
+    }
     assertInvalid(
-      operation.validate({ action: "create_one", item: {} }),
-      /item\.link/,
+      operation.validate({
+        action: "create_one",
+        link: "https://example.com",
+        item: { title: "Mine", tags: ["inbox"] },
+      }),
+      /item is not applied on create/,
+    );
+    assertInvalid(
+      operation.validate({
+        action: "create_one",
+        link: "https://example.com",
+        collectionId: 42,
+      }),
+      /collectionId is not applied on create/,
     );
     assert.deepEqual(operation.buildRequest(input), {
       method: "POST",
       path: "/raindrop",
-      body: {
-        link: "https://example.com",
-        tags: ["docs"],
-        pleaseParse: {},
-      },
+      body: { link: "https://example.com", pleaseParse: {} },
     });
-    assert.deepEqual(
-      operation.buildRequest({
-        action: "create_one",
-        item: { link: "https://example.com", title: "Mine" },
-      }),
-      {
-        method: "POST",
-        path: "/raindrop",
-        body: { link: "https://example.com", title: "Mine" },
-      },
-      "a caller-supplied title suppresses the parse that would overwrite it",
-    );
-    assert.deepEqual(
-      operation.buildRequest({
-        action: "create_one",
-        item: { link: "https://example.com", title: "Mine", pleaseParse: {} },
-      }),
-      {
-        method: "POST",
-        path: "/raindrop",
-        body: { link: "https://example.com", title: "Mine", pleaseParse: {} },
-      },
-      "an explicit pleaseParse forces the parse anyway",
-    );
-    assert.deepEqual(
-      operation.buildRequest({
-        action: "create_one",
-        item: { link: "https://example.com", pleaseParse: null },
-      }),
-      {
-        method: "POST",
-        path: "/raindrop",
-        body: { link: "https://example.com" },
-      },
-      "an explicit non-object pleaseParse opts out of the parse",
-    );
     assert.match(
       operation.format({ result: true, item: { _id: 3, title: "Created" } }),
       /Created raindrop\.[\s\S]*Created/,
@@ -135,38 +117,44 @@ describe("bookmark operations", () => {
   it("validates, maps, and formats create_many", () => {
     const operation = op("create_many");
     assertInvalid(
-      operation.validate({ action: "create_many", items: [] }),
-      /at least 1 item/,
+      operation.validate({ action: "create_many", links: [] }),
+      /at least 1 link/,
     );
     assertInvalid(
       operation.validate({
         action: "create_many",
-        items: Array.from({ length: 101 }, (_, i) => ({
-          link: `https://example.com/${i}`,
-        })),
+        links: Array.from(
+          { length: 101 },
+          (_, i) => `https://example.com/${i}`,
+        ),
       }),
       /100/,
     );
     assertInvalid(
       operation.validate({
         action: "create_many",
-        items: [{ link: "https://example.com/1" }, "https://example.com/2"],
+        links: ["https://example.com/1", "nope"],
       }),
-      /items\[1\]\.link/,
+      /links\[1\].*URL/,
     );
     assertInvalid(
       operation.validate({
         action: "create_many",
-        items: [{ link: "https://example.com/1" }, { title: "No link" }],
+        links: ["https://example.com/1", { link: "https://example.com/2" }],
       }),
-      /items\[1\]\.link/,
+      /links\[1\].*URL/,
+    );
+    assertInvalid(
+      operation.validate({
+        action: "create_many",
+        links: ["https://example.com/1"],
+        items: [{ link: "https://example.com/1", title: "Mine" }],
+      }),
+      /items is not applied on create/,
     );
     const input = {
       action: "create_many",
-      items: [
-        { link: "https://example.com/1" },
-        { link: "https://example.com/2" },
-      ],
+      links: ["https://example.com/1", "https://example.com/2"],
     };
     assert.deepEqual(operation.validate(input), { ok: true });
     assert.deepEqual(operation.buildRequest(input), {

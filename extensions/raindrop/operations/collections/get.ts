@@ -1,8 +1,8 @@
 import type { RaindropOperation } from "../../core/types.ts";
 import { formatCollections, ok } from "./helpers.ts";
 
-export const get: RaindropOperation = {
-  action: "get",
+export const getCollections: RaindropOperation = {
+  action: "get_collections",
   validate() {
     return ok();
   },

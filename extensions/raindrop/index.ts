@@ -4,15 +4,14 @@ import { Type } from "typebox";
 import { createRaindropClient } from "./core/client.ts";
 import { registerResourceTool } from "./core/resource-tool.ts";
 import {
-  RaindropBookmarkItemSchema,
   RaindropBookmarkUpdateItemSchema,
+  RaindropLinkSchema,
   RaindropUpdateBodySchema,
 } from "./core/schemas.ts";
 import { bookmarkOperations } from "./operations/bookmarks/index.ts";
 import { collectionOperations } from "./operations/collections/index.ts";
-import { tagOperations } from "./operations/tags/index.ts";
 
-const BookmarkActionSchema = StringEnum(
+const RaindropActionSchema = StringEnum(
   [
     "get_one",
     "get_many",
@@ -20,16 +19,18 @@ const BookmarkActionSchema = StringEnum(
     "create_many",
     "update_one",
     "update_many",
+    "get_collections",
   ],
-  { description: "Bookmark action to perform." },
+  { description: "Raindrop action to perform." },
 );
 
-const BookmarkParametersSchema = Type.Object({
-  action: BookmarkActionSchema,
+const RaindropParametersSchema = Type.Object({
+  action: RaindropActionSchema,
   id: Type.Optional(Type.Number()),
   item: Type.Optional(RaindropBookmarkUpdateItemSchema),
-  items: Type.Optional(
-    Type.Array(RaindropBookmarkItemSchema, { minItems: 1, maxItems: 100 }),
+  link: Type.Optional(RaindropLinkSchema),
+  links: Type.Optional(
+    Type.Array(RaindropLinkSchema, { minItems: 1, maxItems: 100 }),
   ),
   collectionId: Type.Optional(Type.Number()),
   search: Type.Optional(Type.String()),
@@ -37,19 +38,6 @@ const BookmarkParametersSchema = Type.Object({
   page: Type.Optional(Type.Number()),
   perpage: Type.Optional(Type.Number({ maximum: 50 })),
   body: Type.Optional(RaindropUpdateBodySchema),
-});
-
-const TagParametersSchema = Type.Object({
-  action: StringEnum(["get", "rename", "merge", "remove"], {
-    description: "Tag action to perform.",
-  }),
-  collectionId: Type.Optional(Type.Number()),
-  tags: Type.Optional(Type.Array(Type.String())),
-  replace: Type.Optional(Type.String()),
-});
-
-const CollectionParametersSchema = Type.Object({
-  action: StringEnum(["get"], { description: "Collection action to perform." }),
 });
 
 export default function raindropExtension(pi: ExtensionAPI): void {
@@ -67,62 +55,24 @@ export default function raindropExtension(pi: ExtensionAPI): void {
   registerResourceTool(
     pi,
     {
-      name: "raindrop_bookmarks",
-      resource: "bookmarks",
-      label: "Raindrop Bookmarks",
+      name: "raindrop",
+      resource: "raindrop",
+      label: "Raindrop",
       description:
-        "Manage Raindrop.io bookmarks: get, create, and update bookmarks.",
+        "Manage Raindrop.io: get, create, and update bookmarks, and list collections.",
       promptSnippet:
-        "Use raindrop_bookmarks to get, create, or update Raindrop.io bookmarks.",
+        "Use raindrop to get, create, or update Raindrop.io bookmarks and to list collections.",
       promptGuidelines: [
-        "Use raindrop_bookmarks with action=get_many to search or list bookmarks; collectionId defaults to 0 for all non-trash raindrops.",
-        "Use raindrop_bookmarks with action=get_one and id when the user asks for one known bookmark.",
-        "Use raindrop_bookmarks with action=create_one and item.link for one new bookmark, or action=create_many with items for 1-100 bookmarks.",
-        "Use raindrop_bookmarks with action=update_one for one id and item updates, or action=update_many with collectionId greater than 0 and body updates.",
-        "Do not use raindrop_bookmarks for deleting, uploading, caching, or suggesting bookmarks.",
+        "Use raindrop with action=get_many to search or list bookmarks; collectionId defaults to 0 for all non-trash raindrops.",
+        "Use raindrop with action=get_one and id when the user asks for one known bookmark.",
+        "Use raindrop with action=create_one and link for one new bookmark, or action=create_many with links for 1-100 bookmarks; creating a bookmark takes only the URL, and Raindrop fetches the page metadata itself.",
+        "Bookmarks created this way land in Unsorted (collection -1); use action=update_one afterwards to set a title, tags, or a collection.",
+        "Use raindrop with action=update_one for one id and item updates, or action=update_many with collectionId greater than 0 and body updates.",
+        "Use raindrop with action=get_collections when you need collection ids or names before collection-scoped work.",
+        "Do not use raindrop for deleting, uploading, caching, or suggesting bookmarks, or for renaming, merging, or removing tags account-wide.",
       ],
-      parameters: BookmarkParametersSchema,
-      operations: bookmarkOperations,
-    },
-    client,
-  );
-
-  registerResourceTool(
-    pi,
-    {
-      name: "raindrop_tags",
-      resource: "tags",
-      label: "Raindrop Tags",
-      description:
-        "Manage Raindrop.io tags: list, rename, merge, or remove tags.",
-      promptSnippet:
-        "Use raindrop_tags to list, rename, merge, or remove Raindrop.io tags.",
-      promptGuidelines: [
-        "Use raindrop_tags with action=get to list tags; collectionId is optional.",
-        "Use raindrop_tags with action=rename when exactly one source tag should be renamed to replace.",
-        "Use raindrop_tags with action=merge when one or more source tags should merge into replace.",
-        "Use raindrop_tags with action=remove when tags should be removed from bookmarks.",
-      ],
-      parameters: TagParametersSchema,
-      operations: tagOperations,
-    },
-    client,
-  );
-
-  registerResourceTool(
-    pi,
-    {
-      name: "raindrop_collections",
-      resource: "collections",
-      label: "Raindrop Collections",
-      description: "List Raindrop.io collections.",
-      promptSnippet:
-        "Use raindrop_collections to list Raindrop.io collections.",
-      promptGuidelines: [
-        "Use raindrop_collections with action=get when the user needs available collection ids or names.",
-      ],
-      parameters: CollectionParametersSchema,
-      operations: collectionOperations,
+      parameters: RaindropParametersSchema,
+      operations: [...bookmarkOperations, ...collectionOperations],
     },
     client,
   );

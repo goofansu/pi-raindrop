@@ -1,5 +1,15 @@
 # Raindrop API Tools Redesign
 
+> **Superseded.** This document records the June 2026 redesign, which registered
+> three tools: `raindrop_bookmarks`, `raindrop_tags`, and `raindrop_collections`.
+> The shipped surface is now a single `raindrop` tool whose actions are
+> `get_one`, `get_many`, `create_one`, `create_many`, `update_one`,
+> `update_many`, and `get_collections`. Account-wide tag administration was
+> removed, and creating a bookmark now takes only a URL, so anything below about
+> `raindrop_tags`, `raindrop_collections`, or create-time item fields describes
+> the previous design rather than the current one. See `README.md` and
+> `skills/raindrop/SKILL.md` for the current surface.
+
 ## Summary
 
 Redesign the `pi-raindrop` package around resource-shaped tools backed by operation modules. The public tool surface will be small for agents, while the implementation keeps endpoint-specific behavior local and testable.

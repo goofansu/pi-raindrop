@@ -18,7 +18,7 @@ import type {
 
 export interface ResourceToolDefinition {
   name: string;
-  resource: "bookmarks" | "tags" | "collections";
+  resource: string;
   label: string;
   description: string;
   promptSnippet: string;

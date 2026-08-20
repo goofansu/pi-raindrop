@@ -15,6 +15,8 @@ export interface BookmarkInput extends Record<string, unknown> {
   nested?: unknown;
   item?: unknown;
   items?: unknown;
+  link?: unknown;
+  links?: unknown;
   body?: unknown;
 }
 
@@ -65,20 +67,27 @@ export function formatItems(
   return items.length ? `${summary}\n\n${items.join("\n")}` : summary;
 }
 
-// Raindrop only fetches page metadata (cover, description, page content) when
-// pleaseParse is present, so default it for new bookmarks. Skip the default
-// when the caller supplied their own title or excerpt, since the background
-// parse would overwrite it; an explicit pleaseParse object still forces the
-// parse, and an explicit non-object value opts out entirely.
-export function withDefaultParse(
-  item: Record<string, unknown>,
-): Record<string, unknown> {
-  if ("pleaseParse" in item) {
-    if (isObject(item.pleaseParse)) return item;
-    const { pleaseParse: _optOut, ...rest } = item;
-    return rest;
+export function isLink(value: unknown): value is string {
+  if (typeof value !== "string" || value === "" || !URL.canParse(value))
+    return false;
+  // URL.canParse accepts any absolute URI, including "tel:123",
+  // "javascript:alert(1)" and Windows paths. Bookmarks are web links.
+  const { protocol } = new URL(value);
+  return protocol === "http:" || protocol === "https:";
+}
+
+// The create actions take only a URL. Anything else a caller sends would be
+// dropped silently, so reject it and point at the action that does apply it.
+export function rejectCreateExtras(
+  input: BookmarkInput,
+  action: string,
+  accepted: string,
+): ValidationResult | undefined {
+  for (const field of ["item", "items", "collectionId"] as const) {
+    if (input[field] !== undefined)
+      return invalid(
+        `${action} takes only ${accepted}; ${field} is not applied on create. Create the bookmark, then set title, tags, or collection with update_one.`,
+      );
   }
-  if (typeof item.title === "string" || typeof item.excerpt === "string")
-    return item;
-  return { ...item, pleaseParse: {} };
+  return undefined;
 }

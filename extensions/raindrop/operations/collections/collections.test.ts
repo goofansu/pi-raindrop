@@ -11,10 +11,12 @@ function op(action: string) {
 }
 
 describe("collection operations", () => {
-  it("validates, maps, and formats get", () => {
-    const operation = op("get");
-    assert.deepEqual(operation.validate({ action: "get" }), { ok: true });
-    assert.deepEqual(operation.buildRequest({ action: "get" }), {
+  it("validates, maps, and formats get_collections", () => {
+    const operation = op("get_collections");
+    assert.deepEqual(operation.validate({ action: "get_collections" }), {
+      ok: true,
+    });
+    assert.deepEqual(operation.buildRequest({ action: "get_collections" }), {
       method: "GET",
       path: "/collections",
     });

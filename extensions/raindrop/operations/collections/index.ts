@@ -1,4 +1,4 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { get } from "./get.ts";
+import { getCollections } from "./get.ts";
 
-export const collectionOperations: RaindropOperation[] = [get];
+export const collectionOperations: RaindropOperation[] = [getCollections];

@@ -2,32 +2,33 @@ import type { RaindropOperation } from "../../core/types.ts";
 import {
   formatItem,
   invalid,
-  isObject,
+  isLink,
   ok,
-  withDefaultParse,
+  rejectCreateExtras,
 } from "./helpers.ts";
 
 export const createOne: RaindropOperation = {
   action: "create_one",
   validate(input) {
-    return isObject(input.item) &&
-      typeof input.item.link === "string" &&
-      input.item.link !== ""
-      ? ok()
-      : invalid("create_one requires item.link");
+    if (!isLink(input.link))
+      return invalid("create_one requires link to be an http(s) URL");
+    return rejectCreateExtras(input, "create_one", "link") ?? ok();
   },
   buildRequest(input) {
-    const item = isObject(input.item) ? input.item : {};
+    // pleaseParse is what makes Raindrop fetch the page metadata (verified:
+    // it fills in title, excerpt, and cover within seconds). A bookmark is
+    // only ever a link, so always send it. Omitting collection puts the
+    // bookmark in Unsorted, collection -1.
     return {
       method: "POST",
       path: "/raindrop",
-      body: withDefaultParse(item),
+      body: { link: input.link, pleaseParse: {} },
     };
   },
   format(data) {
     return formatItem(data, "Created raindrop.");
   },
-  summarize() {
-    return "create raindrop";
+  summarize(input) {
+    return `create raindrop ${typeof input.link === "string" ? input.link : "?"}`;
   },
 };

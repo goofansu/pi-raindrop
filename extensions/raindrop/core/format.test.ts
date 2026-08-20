@@ -1,10 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import {
-  formatBookmarkItem,
-  formatCollectionItem,
-  formatTagItem,
-} from "./format.ts";
+import { formatBookmarkItem, formatCollectionItem } from "./format.ts";
 
 describe("format helpers", () => {
   it("formats bookmark fields used by list and single-item operations", () => {
@@ -26,10 +22,6 @@ describe("format helpers", () => {
         "   Note: Note text",
       ].join("\n"),
     );
-  });
-
-  it("formats tag names with counts", () => {
-    assert.equal(formatTagItem({ _id: "api", count: 100 }), "api (100)");
   });
 
   it("formats collection details", () => {

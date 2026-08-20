@@ -16,11 +16,6 @@ const RaindropBookmarkItemFields = {
   pleaseParse: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 };
 
-export const RaindropBookmarkItemSchema = Type.Object({
-  link: Type.String(),
-  ...RaindropBookmarkItemFields,
-});
-
 export const RaindropBookmarkUpdateItemSchema = Type.Object({
   link: Type.Optional(Type.String()),
   ...RaindropBookmarkItemFields,
@@ -59,8 +54,8 @@ export const ListRaindropsSchema = Type.Object({
   perpage: Type.Optional(Type.Number({ maximum: 50 })),
 });
 
-export const CreateManyRaindropsSchema = Type.Object({
-  items: Type.Array(RaindropBookmarkItemSchema, { minItems: 1, maxItems: 100 }),
+export const RaindropLinkSchema = Type.String({
+  description: "URL to bookmark. Raindrop fetches the page metadata itself.",
 });
 
 export const UpdateManyRaindropsSchema = Type.Object({

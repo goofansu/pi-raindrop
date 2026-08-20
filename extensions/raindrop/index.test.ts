@@ -65,23 +65,30 @@ describe("raindrop skill", () => {
     assert.match(skill, /^---\n[\s\S]*?\n---\n/);
     assert.match(skill, /^name: raindrop$/m);
     assert.match(skill, /^description: .+/m);
-    assert.match(skill, /`raindrop_bookmarks`/);
-    assert.match(skill, /`raindrop_tags`/);
-    assert.match(skill, /`raindrop_collections`/);
+    assert.match(skill, /`raindrop`/);
+    assert.doesNotMatch(
+      skill,
+      /raindrop_bookmarks|raindrop_tags|raindrop_collections/,
+    );
   });
 });
 
 describe("raindrop extension registration", () => {
-  it("registers exactly the three resource tools and not the legacy raindrop tool", () => {
+  it("registers exactly one raindrop tool covering bookmarks and collections", () => {
     const { tools } = registerExtension();
 
     assert.deepEqual(
       tools.map((tool) => tool.name),
-      ["raindrop_bookmarks", "raindrop_tags", "raindrop_collections"],
+      ["raindrop"],
     );
-    assert.equal(
-      tools.some((tool) => tool.name === "raindrop"),
-      false,
+    const actions = (
+      toolByName(tools, "raindrop").parameters as {
+        properties: { action: { enum: string[] } };
+      }
+    ).properties.action.enum;
+    assert.ok(
+      actions.includes("get_collections"),
+      "collection listing should be an action on the raindrop tool",
     );
   });
 
@@ -121,7 +128,7 @@ describe("raindrop extension registration", () => {
     }
   });
 
-  it("bookmark tool execute can create_one using fetch and bearer auth", async () => {
+  it("raindrop tool execute can create_one using fetch and bearer auth", async () => {
     const oldKey = process.env.RAINDROP_API_KEY;
     const oldFetch = globalThis.fetch;
     const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -142,10 +149,10 @@ describe("raindrop extension registration", () => {
 
     try {
       const { tools } = registerExtension();
-      const bookmarks = toolByName(tools, "raindrop_bookmarks");
-      const result = await bookmarks.execute("call-1", {
+      const raindrop = toolByName(tools, "raindrop");
+      const result = await raindrop.execute("call-1", {
         action: "create_one",
-        item: { link: "https://example.com", title: "Example" },
+        link: "https://example.com",
       });
 
       assert.equal(result.isError, false);
@@ -158,7 +165,7 @@ describe("raindrop extension registration", () => {
       });
       assert.equal(
         calls[0].init.body,
-        JSON.stringify({ link: "https://example.com", title: "Example" }),
+        JSON.stringify({ link: "https://example.com", pleaseParse: {} }),
       );
     } finally {
       globalThis.fetch = oldFetch;
@@ -167,7 +174,7 @@ describe("raindrop extension registration", () => {
     }
   });
 
-  it("bookmark tool execute accepts partial item fields for update_one", async () => {
+  it("raindrop tool execute accepts partial item fields for update_one", async () => {
     const oldKey = process.env.RAINDROP_API_KEY;
     const oldFetch = globalThis.fetch;
     const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -188,8 +195,8 @@ describe("raindrop extension registration", () => {
 
     try {
       const { tools } = registerExtension();
-      const bookmarks = toolByName(tools, "raindrop_bookmarks");
-      const result = await bookmarks.execute("call-1", {
+      const raindrop = toolByName(tools, "raindrop");
+      const result = await raindrop.execute("call-1", {
         action: "update_one",
         id: 101,
         item: { title: "New" },
