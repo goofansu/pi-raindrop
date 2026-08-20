@@ -1,2 +1,2 @@
 dev:
-	secretspec run -- pi -ne -np -nc --no-session --offline -e extensions/raindrop
+	secretspec run -- pi -ne -np -nc -ns -e extensions/raindrop --skill skills/raindrop
