@@ -1,20 +1,16 @@
 ---
 name: raindrop
-description: Workflow judgment for the pi-raindrop `raindrop` tool - scoping bulk updates and handling background metadata parsing. Use when working with Raindrop.io bookmarks or collections.
+description: Blast radius of an `update_many`, and reporting a bookmark whose metadata parse is still in flight - the two Raindrop.io judgments the `raindrop` tool cannot enforce. Use before bulk-updating bookmarks, or after creating one.
 ---
 
 # Raindrop
 
-The `raindrop` tool's own guidelines cover which action to use for a request.
-This skill covers the judgment those guidelines cannot express.
+## Blast radius
 
-## Scoping bulk updates
+`update_many` mutates every bookmark its scope matches, and the validator only checks that a scope exists, not that it is the one the user meant. Establish the blast radius first: run the same `collectionId` and `search` through `get_many` and read the count, unless the user gave explicit bookmark IDs.
 
-- Before `update_many`, inspect the target set with `get_many` unless the user already gave explicit bookmark IDs, a search query, or another clear scope.
-- `update_many` needs an intentional scope, such as `body.ids` or a deliberate search filter. A collection alone is not a scope; avoid broad, ambiguous bulk updates.
+## Metadata in flight
 
-## Metadata after creating
+Creating a bookmark returns before its metadata does. The immediate response carries the URL as a placeholder title with an empty excerpt and cover; the real title, excerpt, and cover land within seconds.
 
-- Creating a bookmark starts a background metadata parse. The immediate response has the URL as a placeholder title and an empty excerpt and cover; the real title, excerpt, and cover fill in within seconds (checked against single creates).
-- Do not promise that specific fields will appear, and do not claim a created bookmark has no metadata until the parse completes.
-- To re-parse metadata of an existing bookmark, call `update_one` with `item.pleaseParse: {}`.
+Report a fresh bookmark as created with its metadata in flight, and name fields only once a read shows them. To put an existing bookmark's metadata back in flight, call `update_one` with `item.pleaseParse: {}`.
