@@ -22,3 +22,10 @@ Use this skill when working with Raindrop.io bookmarks, tags, or collections.
 - When a collection ID is needed, call `raindrop_collections` with `{ "action": "get" }` rather than guessing.
 - Use `raindrop_tags` only for tag administration operations. To add or remove tags on specific bookmarks, use `raindrop_bookmarks` create/update actions instead.
 - Do not attempt bookmark deletion; this package version does not expose bookmark remove actions.
+
+## Creating bookmarks and metadata
+
+- `create_one` and `create_many` automatically send `pleaseParse: {}` when not supplied, so Raindrop fetches the page title, excerpt, and cover in the background. After creation, the title/excerpt may still be empty in the immediate response; they fill in shortly after.
+- Do not promise that a title will appear instantly, and do not claim a created bookmark has no metadata until the parse completes.
+- Pass `pleaseParse: {}` explicitly only when you need custom parse options (e.g. `{ "cover": true }`).
+- To re-parse metadata of an existing bookmark, call `update_one` with `item.pleaseParse: {}`.

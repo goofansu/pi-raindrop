@@ -1,5 +1,5 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { formatItems, invalid, ok } from "./helpers.ts";
+import { formatItems, invalid, isObject, ok } from "./helpers.ts";
 
 export const createMany: RaindropOperation = {
   action: "create_many",
@@ -11,7 +11,15 @@ export const createMany: RaindropOperation = {
     return ok();
   },
   buildRequest(input) {
-    return { method: "POST", path: "/raindrops", body: { items: input.items } };
+    // Raindrop only fetches page metadata (title, excerpt, cover) when
+    // pleaseParse is present; default it so new bookmarks are always parsed.
+    const items = Array.isArray(input.items)
+      ? input.items.filter(isObject).map((item) => ({
+          ...item,
+          pleaseParse: isObject(item.pleaseParse) ? item.pleaseParse : {},
+        }))
+      : [];
+    return { method: "POST", path: "/raindrops", body: { items } };
   },
   format(data) {
     const count = data.items?.length ?? 0;

@@ -84,8 +84,23 @@ describe("bookmark operations", () => {
     assert.deepEqual(operation.buildRequest(input), {
       method: "POST",
       path: "/raindrop",
-      body: { link: "https://example.com", tags: ["docs"] },
+      body: {
+        link: "https://example.com",
+        tags: ["docs"],
+        pleaseParse: {},
+      },
     });
+    assert.deepEqual(
+      operation.buildRequest({
+        action: "create_one",
+        item: { link: "https://example.com", pleaseParse: { cover: true } },
+      }),
+      {
+        method: "POST",
+        path: "/raindrop",
+        body: { link: "https://example.com", pleaseParse: { cover: true } },
+      },
+    );
     assert.match(
       operation.format({ result: true, item: { _id: 3, title: "Created" } }),
       /Created raindrop\.[\s\S]*Created/,
@@ -120,8 +135,8 @@ describe("bookmark operations", () => {
       path: "/raindrops",
       body: {
         items: [
-          { link: "https://example.com/1" },
-          { link: "https://example.com/2" },
+          { link: "https://example.com/1", pleaseParse: {} },
+          { link: "https://example.com/2", pleaseParse: {} },
         ],
       },
     });

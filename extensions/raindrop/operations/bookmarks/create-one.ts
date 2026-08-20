@@ -11,7 +11,15 @@ export const createOne: RaindropOperation = {
       : invalid("create_one requires item.link");
   },
   buildRequest(input) {
-    return { method: "POST", path: "/raindrop", body: input.item };
+    // Raindrop only fetches page metadata (title, excerpt, cover) when
+    // pleaseParse is present; default it so new bookmarks are always parsed.
+    const item = isObject(input.item) ? input.item : {};
+    const pleaseParse = isObject(item.pleaseParse) ? item.pleaseParse : {};
+    return {
+      method: "POST",
+      path: "/raindrop",
+      body: { ...item, pleaseParse },
+    };
   },
   format(data) {
     return formatItem(data, "Created raindrop.");
