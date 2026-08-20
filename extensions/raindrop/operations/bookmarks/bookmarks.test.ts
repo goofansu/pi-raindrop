@@ -93,13 +93,38 @@ describe("bookmark operations", () => {
     assert.deepEqual(
       operation.buildRequest({
         action: "create_one",
-        item: { link: "https://example.com", pleaseParse: { cover: true } },
+        item: { link: "https://example.com", title: "Mine" },
       }),
       {
         method: "POST",
         path: "/raindrop",
-        body: { link: "https://example.com", pleaseParse: { cover: true } },
+        body: { link: "https://example.com", title: "Mine" },
       },
+      "a caller-supplied title suppresses the parse that would overwrite it",
+    );
+    assert.deepEqual(
+      operation.buildRequest({
+        action: "create_one",
+        item: { link: "https://example.com", title: "Mine", pleaseParse: {} },
+      }),
+      {
+        method: "POST",
+        path: "/raindrop",
+        body: { link: "https://example.com", title: "Mine", pleaseParse: {} },
+      },
+      "an explicit pleaseParse forces the parse anyway",
+    );
+    assert.deepEqual(
+      operation.buildRequest({
+        action: "create_one",
+        item: { link: "https://example.com", pleaseParse: null },
+      }),
+      {
+        method: "POST",
+        path: "/raindrop",
+        body: { link: "https://example.com" },
+      },
+      "an explicit non-object pleaseParse opts out of the parse",
     );
     assert.match(
       operation.format({ result: true, item: { _id: 3, title: "Created" } }),
@@ -121,6 +146,20 @@ describe("bookmark operations", () => {
         })),
       }),
       /100/,
+    );
+    assertInvalid(
+      operation.validate({
+        action: "create_many",
+        items: [{ link: "https://example.com/1" }, "https://example.com/2"],
+      }),
+      /items\[1\]\.link/,
+    );
+    assertInvalid(
+      operation.validate({
+        action: "create_many",
+        items: [{ link: "https://example.com/1" }, { title: "No link" }],
+      }),
+      /items\[1\]\.link/,
     );
     const input = {
       action: "create_many",

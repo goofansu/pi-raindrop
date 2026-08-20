@@ -18,6 +18,12 @@ Set `RAINDROP_API_KEY` to a Raindrop.io API key or test token used as a Bearer t
 export RAINDROP_API_KEY="your-raindrop-token"
 ```
 
+### Local development
+
+`make dev` runs the extension through [secretspec](https://secretspec.dev), which reads
+`RAINDROP_API_KEY` from the declaration in `secretspec.toml`. Install the `secretspec` CLI
+first, or run the `pi` command from that target directly with `RAINDROP_API_KEY` exported.
+
 ## Tools
 
 This package registers three resource tools:

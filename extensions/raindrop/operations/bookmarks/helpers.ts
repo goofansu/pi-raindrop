@@ -64,3 +64,21 @@ export function formatItems(
     .map((item, index) => `${index + 1}. ${formatBookmarkItem(item)}`);
   return items.length ? `${summary}\n\n${items.join("\n")}` : summary;
 }
+
+// Raindrop only fetches page metadata (cover, description, page content) when
+// pleaseParse is present, so default it for new bookmarks. Skip the default
+// when the caller supplied their own title or excerpt, since the background
+// parse would overwrite it; an explicit pleaseParse object still forces the
+// parse, and an explicit non-object value opts out entirely.
+export function withDefaultParse(
+  item: Record<string, unknown>,
+): Record<string, unknown> {
+  if ("pleaseParse" in item) {
+    if (isObject(item.pleaseParse)) return item;
+    const { pleaseParse: _optOut, ...rest } = item;
+    return rest;
+  }
+  if (typeof item.title === "string" || typeof item.excerpt === "string")
+    return item;
+  return { ...item, pleaseParse: {} };
+}

@@ -158,11 +158,7 @@ describe("raindrop extension registration", () => {
       });
       assert.equal(
         calls[0].init.body,
-        JSON.stringify({
-          link: "https://example.com",
-          title: "Example",
-          pleaseParse: {},
-        }),
+        JSON.stringify({ link: "https://example.com", title: "Example" }),
       );
     } finally {
       globalThis.fetch = oldFetch;

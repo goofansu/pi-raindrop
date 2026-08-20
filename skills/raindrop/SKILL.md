@@ -25,7 +25,7 @@ Use this skill when working with Raindrop.io bookmarks, tags, or collections.
 
 ## Creating bookmarks and metadata
 
-- `create_one` and `create_many` automatically send `pleaseParse: {}` when not supplied, so Raindrop fetches the page title, excerpt, and cover in the background. After creation, the title/excerpt may still be empty in the immediate response; they fill in shortly after.
-- Do not promise that a title will appear instantly, and do not claim a created bookmark has no metadata until the parse completes.
-- Pass `pleaseParse: {}` explicitly only when you need custom parse options (e.g. `{ "cover": true }`).
+- `create_one` and `create_many` add `pleaseParse: {}` when the item has no `title` or `excerpt` of its own, so Raindrop fetches page metadata (cover, description, page content) in the background. The immediate response may still show empty metadata; it fills in shortly after.
+- When you supply a `title` or `excerpt` yourself, the parse is skipped so Raindrop cannot overwrite what you wrote. Pass `pleaseParse: {}` explicitly to request the parse anyway, or pass `pleaseParse: null` to skip it even for a bare link.
+- Do not promise that specific fields will appear, and do not claim a created bookmark has no metadata until the parse completes.
 - To re-parse metadata of an existing bookmark, call `update_one` with `item.pleaseParse: {}`.

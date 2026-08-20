@@ -1,5 +1,11 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { formatItem, invalid, isObject, ok } from "./helpers.ts";
+import {
+  formatItem,
+  invalid,
+  isObject,
+  ok,
+  withDefaultParse,
+} from "./helpers.ts";
 
 export const createOne: RaindropOperation = {
   action: "create_one",
@@ -11,14 +17,11 @@ export const createOne: RaindropOperation = {
       : invalid("create_one requires item.link");
   },
   buildRequest(input) {
-    // Raindrop only fetches page metadata (title, excerpt, cover) when
-    // pleaseParse is present; default it so new bookmarks are always parsed.
     const item = isObject(input.item) ? input.item : {};
-    const pleaseParse = isObject(item.pleaseParse) ? item.pleaseParse : {};
     return {
       method: "POST",
       path: "/raindrop",
-      body: { ...item, pleaseParse },
+      body: withDefaultParse(item),
     };
   },
   format(data) {

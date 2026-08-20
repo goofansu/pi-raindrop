@@ -1,5 +1,11 @@
 import type { RaindropOperation } from "../../core/types.ts";
-import { formatItems, invalid, isObject, ok } from "./helpers.ts";
+import {
+  formatItems,
+  invalid,
+  isObject,
+  ok,
+  withDefaultParse,
+} from "./helpers.ts";
 
 export const createMany: RaindropOperation = {
   action: "create_many",
@@ -8,17 +14,20 @@ export const createMany: RaindropOperation = {
       return invalid("create_many requires at least 1 item");
     if (input.items.length > 100)
       return invalid("create_many accepts at most 100 items");
+    // Reject malformed entries rather than dropping them in buildRequest,
+    // which would create fewer bookmarks than requested without an error.
+    const bad = input.items.findIndex(
+      (item) =>
+        !isObject(item) || typeof item.link !== "string" || item.link === "",
+    );
+    if (bad !== -1)
+      return invalid(`create_many requires items[${bad}].link to be a link`);
     return ok();
   },
   buildRequest(input) {
-    // Raindrop only fetches page metadata (title, excerpt, cover) when
-    // pleaseParse is present; default it so new bookmarks are always parsed.
-    const items = Array.isArray(input.items)
-      ? input.items.filter(isObject).map((item) => ({
-          ...item,
-          pleaseParse: isObject(item.pleaseParse) ? item.pleaseParse : {},
-        }))
-      : [];
+    const items = (Array.isArray(input.items) ? input.items : []).map((item) =>
+      withDefaultParse(isObject(item) ? item : {}),
+    );
     return { method: "POST", path: "/raindrops", body: { items } };
   },
   format(data) {
